@@ -46,91 +46,88 @@ import java.util.Set;
 
 import javax.management.openmbean.OpenMBeanOperationInfoSupport;
 
-@Mojo( name = "entries", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES )
+@Mojo(name = "entries", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES)
 /**
  * 
  * @author pitb0ss
  * @requiresDependencyResolution test
  */
-public class JavaEntryMojo
-    extends AbstractMojo
-{
-	
-    @Parameter( defaultValue = "${project.build.directory}/entry-points.txt", property = "outputFile", required = false)
-    private String outputFilePath;
-    
-    @Parameter( defaultValue = "${project}", readonly = true, required = true )
-    private MavenProject project;
-    
+public class JavaEntryMojo extends AbstractMojo {
 
-    @SuppressWarnings("unchecked")
-	public void execute()
-        throws MojoExecutionException
-    {
-    	MainClassSearchVisitor.setLog(getLog());
-    	Path toOutput = Paths.get(outputFilePath);
-    	prepOutput(toOutput);
-    	
-    	Set<String> classesWithMainMethods = new HashSet<String>();
-    	try {
+	@Parameter(defaultValue = "${project.build.directory}/entry-points.txt", property = "outputFile", required = false)
+	private String outputFilePath;
+
+	@Parameter(defaultValue = "${project}", readonly = true, required = true)
+	private MavenProject project;
+
+	@SuppressWarnings("unchecked")
+	public void execute() throws MojoExecutionException {
+		MainClassSearchVisitor.setLog(getLog());
+		Path toOutput = Paths.get(outputFilePath);
+		prepOutput(toOutput);
+
+		Set<String> classesWithMainMethods = new HashSet<String>();
+		try {
 			List<String> testClasspath = (List<String>) project.getCompileClasspathElements();
-			
-			// Use the system class loader so we don't accidently pollute the results.
+
+			// Use the system class loader so we don't accidently pollute the
+			// results.
 			ClassLoader projectClasses = new URLClassLoader(asURLS(testClasspath), ClassLoader.getSystemClassLoader());
 
 			for (String cpEntry : testClasspath) {
-				
-				getLog().info("Walking classpath entry "+cpEntry);
-				Files.walkFileTree(Paths.get(cpEntry), new MainClassSearchVisitor(classesWithMainMethods, projectClasses));
-			
+
+				getLog().info("Walking classpath entry " + cpEntry);
+				Files.walkFileTree(Paths.get(cpEntry),
+						new MainClassSearchVisitor(classesWithMainMethods, projectClasses));
+
 			}
 			getLog().info("Completed walk of classpath.");
-		
+
 			BufferedWriter bw = Files.newBufferedWriter(toOutput, StandardOpenOption.TRUNCATE_EXISTING);
-			
+
 			for (String c : classesWithMainMethods) {
-				getLog().info("Writing "+c+" to the output file.");
+				getLog().info("Writing " + c + " to the output file.");
 				bw.write(c);
 				bw.write("\n");
 			}
 			bw.flush();
 			bw.close();
-    	} catch (DependencyResolutionRequiredException | IOException e) {
+		} catch (DependencyResolutionRequiredException | IOException e) {
 			getLog().error("Failed to walk classpath or write entry point file.", e);
 			throw new MojoExecutionException("Couldn't walk classpath, see log.");
 		}
-    	        
-    }
-    
-    private URL[] asURLS(List<String> testClasspath) throws MojoExecutionException {
-    	try {
-    		URL[] urls = new URL[testClasspath.size()];
+
+	}
+
+	private URL[] asURLS(List<String> testClasspath) throws MojoExecutionException {
+		try {
+			URL[] urls = new URL[testClasspath.size()];
 			for (int i = 0; i < urls.length; i++) {
 				urls[i] = new File(testClasspath.get(i)).toURI().toURL();
 			}
 			return urls;
-    	} catch (MalformedURLException e) {
-    		getLog().error("Failed to convert file to url", e);
-    		throw new MojoExecutionException("Couldn't convert a file to a url, see log.");
+		} catch (MalformedURLException e) {
+			getLog().error("Failed to convert file to url", e);
+			throw new MojoExecutionException("Couldn't convert a file to a url, see log.");
 		}
 	}
 
 	private void prepOutput(Path output) throws MojoExecutionException {
-    	try {
-    		Files.createDirectories(output.getParent());
-    	} catch (FileAlreadyExistsException e) {
-    		// Nothing to do here..
-    	} catch (IOException e) {
-    		getLog().error("Failed to reset output file", e);
-    		throw new MojoExecutionException("Failed to clear output file, see log.");
+		try {
+			Files.createDirectories(output.getParent());
+		} catch (FileAlreadyExistsException e) {
+			// Nothing to do here..
+		} catch (IOException e) {
+			getLog().error("Failed to reset output file", e);
+			throw new MojoExecutionException("Failed to clear output file, see log.");
 		}
-    	try{
-    		Files.createFile(output);
-    	} catch (FileAlreadyExistsException e) {
-    		// Nothing to do here..
-    	} catch (IOException e) {
-    		getLog().error("Failed to reset output file", e);
-    		throw new MojoExecutionException("Failed to clear output file, see log.");
-    	}
-    }
+		try {
+			Files.createFile(output);
+		} catch (FileAlreadyExistsException e) {
+			// Nothing to do here..
+		} catch (IOException e) {
+			getLog().error("Failed to reset output file", e);
+			throw new MojoExecutionException("Failed to clear output file, see log.");
+		}
+	}
 }
