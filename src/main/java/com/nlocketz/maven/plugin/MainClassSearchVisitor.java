@@ -20,7 +20,7 @@ public class MainClassSearchVisitor implements FileVisitor<Path> {
 	private static Log log;
 
 	// System path separator which can be used in a regular expression pattern
-	private static final String PATH_SEP = Pattern.quote(System.getProperty("path.separator"));
+	private static final String PATH_SEP = Pattern.quote(System.getProperty("file.separator"));
 	private Set<String> mainsFound;
 	private ClassLoader projectClasses;
 	private Path base;
@@ -90,7 +90,6 @@ public class MainClassSearchVisitor implements FileVisitor<Path> {
 
 	private String toClassName(Path classFile) {
 		String rel = base.relativize(classFile).toString();
-
 		rel = rel.replaceAll(PATH_SEP, "."); // Path separators to .'s
 		rel = rel.substring(0, rel.length() - ".class".length()); // Remove file extension
 		getLog().debug(String.format("toClassName: from %s to %s", classFile.toString(), rel));
