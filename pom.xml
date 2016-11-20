@@ -3,7 +3,7 @@
 
   <groupId>com.nlocketz</groupId>
   <artifactId>entry-point-maven-plugin</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.2</version>
   <packaging>maven-plugin</packaging>
 
   <name>entry-point-maven-plugin</name>
@@ -176,7 +176,6 @@
         <configuration>
           <serverId>ossrh</serverId>
           <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <stagingProfileId>7edbe315063867</stagingProfileId>
           <autoReleaseAfterClose>true</autoReleaseAfterClose>
         </configuration>
       </plugin>
