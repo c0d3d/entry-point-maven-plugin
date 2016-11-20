@@ -77,7 +77,8 @@ public class MainClassSearchVisitor implements FileVisitor<Path> {
 			}
 		} catch (ClassNotFoundException | SecurityException e) {
 			throw new IOException("Couldn't reflect on class " + p.toString(), e);
-		} catch (NoSuchMethodException e) {
+			// NoClassDefFoundError ignores ClassLoader errors stemming from OSGi dependencies
+		} catch (NoSuchMethodException | NoClassDefFoundError e) {
 			// Nothing wrong here, just didn't find a main method
 		}
 		return FileVisitResult.CONTINUE;
