@@ -7,7 +7,8 @@
   <packaging>maven-plugin</packaging>
 
   <name>entry-point-maven-plugin</name>
-
+  <url>https://github.com/c0d3d/entry-point-maven-plugin</url>
+  <description>Lists fully qualified classes in the classpath with main methods. (used for autocomplete)</description>
   <developers>
     <developer>
       <name>Neil Locketz</name>
@@ -18,6 +19,13 @@
       <email>philip@pblair.org</email>
     </developer>
   </developers>
+
+  <licenses>
+    <license>
+      <name>Apache 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -44,9 +52,13 @@
     <tag>HEAD</tag>
   </scm>
   <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
     <repository>
-      <id>github</id>
-      <url>https://github.com/c0d3d/entry-point-maven-plugin</url>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
 
@@ -68,15 +80,15 @@
       <version>${plexus-utils.version}</version>
     </dependency>
     <dependency>
-    	<groupId>org.apache.maven</groupId>
-    	<artifactId>maven-project</artifactId>
-    	<version>${maven-project.version}</version>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-project</artifactId>
+      <version>${maven-project.version}</version>
     </dependency>
     <dependency>
-    	<groupId>org.apache.maven</groupId>
-    	<artifactId>maven-core</artifactId>
-    	<version>${maven-core.version}</version>
-	  </dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-core</artifactId>
+      <version>${maven-core.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -142,6 +154,32 @@
         <artifactId>maven-install-plugin</artifactId>
         <version>${maven-install-plugin.version}</version>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.5</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>1.6.3</version>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>ossrh</serverId>
+          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <stagingProfileId>7edbe315063867</stagingProfileId>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <profiles>
@@ -178,6 +216,7 @@
               </execution>
             </executions>
           </plugin>
+
         </plugins>
       </build>
     </profile>
