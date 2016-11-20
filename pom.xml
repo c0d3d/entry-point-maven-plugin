@@ -3,7 +3,7 @@
 
   <groupId>com.nlocketz</groupId>
   <artifactId>entry-point-maven-plugin</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.3</version>
   <packaging>maven-plugin</packaging>
 
   <name>entry-point-maven-plugin</name>
@@ -49,7 +49,7 @@
     <url>https://github.com/c0d3d/entry-point-maven-plugin</url>
     <connection>scm:git:git://github.com/c0d3d/entry-point-maven-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:c0d3d/entry-point-maven-plugin.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>entry-point-maven-plugin-0.0.3</tag>
   </scm>
   <distributionManagement>
     <snapshotRepository>
