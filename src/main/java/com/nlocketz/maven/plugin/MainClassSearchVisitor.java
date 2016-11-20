@@ -68,11 +68,11 @@ public class MainClassSearchVisitor implements FileVisitor<Path> {
 				String className = toClassName(p);
 				Class<?> c = projectClasses.loadClass(className);
 				c.getMethod("main", String[].class);
-				getLog().info("Found a class with a main method: " + className);
+				getLog().debug("Found a class with a main method: " + className);
 				// If we made it here we found one!
 				mainsFound.add(className);
 			} else if (curFileName.endsWith(".jar")) {
-				getLog().info("Found jar: " + p.toString());
+				getLog().debug("Found jar: " + p.toString());
 				// So the default file system provider recognizes "jar" scheme
 				// and will allow us to work with a jar file as
 				// though it were a normal file system.
@@ -80,7 +80,7 @@ public class MainClassSearchVisitor implements FileVisitor<Path> {
 				FileSystem jarFS = FileSystems.newFileSystem(URI.create("jar:" + p.toUri().toString()),
 						Collections.<String, String>emptyMap());
 				for (Path jarsRoot : jarFS.getRootDirectories()) {
-					getLog().info("Searching jar root: " + jarsRoot.toString());
+					getLog().debug("Searching jar root: " + jarsRoot.toString());
 					Files.walkFileTree(jarsRoot, new MainClassSearchVisitor(this, jarsRoot, jarFS, includeFilterString));
 				}
 
