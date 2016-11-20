@@ -6,6 +6,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import java.io.BufferedWriter;
@@ -35,10 +36,9 @@ import java.util.Set;
  * limitations under the License.
  */
 
-@Mojo(name = "entries", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES)
+@Mojo(name = "entries", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.RUNTIME)
 /**
  * @author pitb0ss
- * @requiresDependencyResolution test
  */
 public class JavaEntryMojo extends AbstractMojo {
 

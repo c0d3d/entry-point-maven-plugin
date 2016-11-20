@@ -1,5 +1,5 @@
 // List of main classes in the test project
-expectedMains = [ "MainExample1", "test.MainExample2", "test.pkg.MainExample3" ];
+expectedMains = [ "MainExample1", "test.MainExample2", "test.pkg.MainExample3", "com.nlocketz.TestMain"];
 expectedCount = expectedMains.size();
 // Expected output file
 File output = new File("target/it/simple-it/target/entry-points.txt");
