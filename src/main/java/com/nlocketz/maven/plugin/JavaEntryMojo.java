@@ -1,5 +1,7 @@
 package com.nlocketz.maven.plugin;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+import edu.emory.mathcs.backport.java.util.Collections;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -64,17 +66,20 @@ public class JavaEntryMojo extends AbstractMojo {
 
 			for (String cpEntry : testClasspath) {
 
-				getLog().info("Walking classpath entry " + cpEntry);
+				getLog().debug("Walking classpath entry " + cpEntry);
 				Files.walkFileTree(Paths.get(cpEntry),
 						new MainClassSearchVisitor(classesWithMainMethods, projectClasses));
 
 			}
-			getLog().info("Completed walk of classpath.");
+			getLog().debug("Completed walk of classpath.");
 
 			BufferedWriter bw = Files.newBufferedWriter(toOutput, StandardOpenOption.TRUNCATE_EXISTING);
 
-			for (String c : classesWithMainMethods) {
-				getLog().info("Writing " + c + " to the output file.");
+			getLog().info("Located classes with main methods:");
+			List<String> classesAsList = Arrays.asList(classesWithMainMethods.toArray());
+			Collections.sort(classesAsList);
+			for (String c : classesAsList) {
+				getLog().info("  - " + c);
 				bw.write(c);
 				bw.write("\n");
 			}
