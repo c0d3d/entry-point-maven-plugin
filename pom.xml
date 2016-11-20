@@ -2,11 +2,22 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.nlocketz</groupId>
-  <artifactId>java-entry-maven-plugin</artifactId>
+  <artifactId>entry-point-maven-plugin</artifactId>
   <version>0.0.2-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
-  <name>java-entry-maven-plugin Maven Plugin</name>
+  <name>entry-point-maven-plugin</name>
+
+  <developers>
+    <developer>
+      <name>Neil Locketz</name>
+      <email>neil@nlocketz.com</email>
+    </developer>
+    <developer>
+      <name>Philip Blair</name>
+      <email>philip@pblair.org</email>
+    </developer>
+  </developers>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
