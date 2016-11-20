@@ -63,11 +63,11 @@ public class JavaEntryMojo extends AbstractMojo {
 			ClassLoader projectClasses = new URLClassLoader(asURLS(testClasspath), ClassLoader.getSystemClassLoader());
 
 			for (String cpEntry : testClasspath) {
-
-				getLog().info("Walking classpath entry " + cpEntry);
-				Files.walkFileTree(Paths.get(cpEntry),
-						new MainClassSearchVisitor(classesWithMainMethods, projectClasses));
-
+				Path cpPath = Paths.get(cpEntry);
+				if (Files.exists(cpPath)) {
+					getLog().info("Walking classpath entry " + cpEntry);
+					Files.walkFileTree(cpPath, new MainClassSearchVisitor(classesWithMainMethods, projectClasses));
+				}
 			}
 			getLog().info("Completed walk of classpath.");
 
