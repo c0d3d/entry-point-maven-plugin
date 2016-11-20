@@ -2,12 +2,7 @@ package com.nlocketz.maven.plugin;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Set;
@@ -20,20 +15,32 @@ public class MainClassSearchVisitor implements FileVisitor<Path> {
 	private static Log log;
 
 	// System path separator which can be used in a regular expression pattern
-	private static final String PATH_SEP = Pattern.quote(System.getProperty("file.separator"));
+	private final String pathSep;
 	private Set<String> mainsFound;
 	private ClassLoader projectClasses;
 	private Path base;
+	private String includeFilterString;
+	private PathMatcher includeFilter;
 
-	MainClassSearchVisitor(Set<String> mainsFound, ClassLoader projectClasses) {
+	MainClassSearchVisitor(Set<String> mainsFound, ClassLoader projectClasses, FileSystem fs, String includeFilter) {
 		this.mainsFound = mainsFound;
 		this.projectClasses = projectClasses;
+		this.includeFilterString = includeFilter;
+		this.includeFilter = fs.getPathMatcher(includeFilter.replace(".", fs.getSeparator()));
+		this.pathSep = fs.getSeparator();
 	}
 
-	private MainClassSearchVisitor(MainClassSearchVisitor other, Path newBase) {
+	MainClassSearchVisitor(Set<String> mainsFound, ClassLoader projectClasses, String includeFilter) {
+		this(mainsFound, projectClasses, FileSystems.getDefault(), includeFilter);
+	}
+
+	private MainClassSearchVisitor(MainClassSearchVisitor other, Path newBase, FileSystem fs, String includeFilter) {
 		mainsFound = other.mainsFound;
 		projectClasses = other.projectClasses;
 		base = newBase;
+		this.includeFilterString = includeFilter;
+		this.includeFilter = fs.getPathMatcher(includeFilter.replace(".", fs.getSeparator()));
+		this.pathSep = fs.getSeparator();
 	}
 
 	public FileVisitResult postVisitDirectory(Path p, IOException e) throws IOException {
@@ -55,6 +62,9 @@ public class MainClassSearchVisitor implements FileVisitor<Path> {
 			String curFileName = p.getFileName().toString();
 			getLog().debug("Checking: " + p.toString());
 			if (curFileName.endsWith(".class")) {
+				if (!includeFilter.matches(base.relativize(p))) {
+					return FileVisitResult.CONTINUE;
+				}
 				String className = toClassName(p);
 				Class<?> c = projectClasses.loadClass(className);
 				c.getMethod("main", String[].class);
@@ -71,7 +81,7 @@ public class MainClassSearchVisitor implements FileVisitor<Path> {
 						Collections.<String, String>emptyMap());
 				for (Path jarsRoot : jarFS.getRootDirectories()) {
 					getLog().info("Searching jar root: " + jarsRoot.toString());
-					Files.walkFileTree(jarsRoot, new MainClassSearchVisitor(this, jarsRoot));
+					Files.walkFileTree(jarsRoot, new MainClassSearchVisitor(this, jarsRoot, jarFS, includeFilterString));
 				}
 
 			}
@@ -91,7 +101,7 @@ public class MainClassSearchVisitor implements FileVisitor<Path> {
 
 	private String toClassName(Path classFile) {
 		String rel = base.relativize(classFile).toString();
-		rel = rel.replaceAll(PATH_SEP, "."); // Path separators to .'s
+		rel = rel.replaceAll(pathSep, "."); // Path separators to .'s
 		rel = rel.substring(0, rel.length() - ".class".length()); // Remove file extension
 		getLog().debug(String.format("toClassName: from %s to %s", classFile.toString(), rel));
 		return rel;
