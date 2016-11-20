@@ -12,6 +12,18 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+  <scm>
+    <url>https://github.com/c0d3d/java-entry-maven-plugin</url>
+    <connection>scm:git:git://github.com/c0d3d/java-entry-maven-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:c0d3d/java-entry-maven-plugin.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <url>https://github.com/c0d3d/java-entry-maven-plugin</url>
+    </repository>
+  </distributionManagement>
 
   <dependencies>
     <dependency>
