@@ -45,6 +45,9 @@ public class JavaEntryMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${project.build.directory}/entry-points.txt", property = "outputFile", required = false)
 	private String outputFilePath;
 
+	@Parameter(defaultValue = "**.*")
+	private String includeFilter;
+
 	@Parameter(defaultValue = "${project}", readonly = true, required = true)
 	private MavenProject project;
 
@@ -61,12 +64,13 @@ public class JavaEntryMojo extends AbstractMojo {
 			// Use the system class loader so we don't accidently pollute the
 			// results.
 			ClassLoader projectClasses = new URLClassLoader(asURLS(testClasspath), ClassLoader.getSystemClassLoader());
+			getLog().info("Locating entry points with filter: " + includeFilter);
 
 			for (String cpEntry : testClasspath) {
 
 				getLog().info("Walking classpath entry " + cpEntry);
 				Files.walkFileTree(Paths.get(cpEntry),
-						new MainClassSearchVisitor(classesWithMainMethods, projectClasses));
+						new MainClassSearchVisitor(classesWithMainMethods, projectClasses, "glob:" + includeFilter));
 
 			}
 			getLog().info("Completed walk of classpath.");
