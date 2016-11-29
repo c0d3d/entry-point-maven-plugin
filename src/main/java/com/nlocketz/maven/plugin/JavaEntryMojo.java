@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.HashSet;
 import java.util.List;
@@ -78,7 +79,7 @@ public class JavaEntryMojo extends AbstractMojo {
 			}
 			getLog().debug("Completed walk of classpath.");
 
-			BufferedWriter bw = Files.newBufferedWriter(toOutput, StandardOpenOption.TRUNCATE_EXISTING);
+			BufferedWriter bw = Files.newBufferedWriter(toOutput, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
 
 			getLog().info("Located classes with main methods:");
 			List<String> classesAsList = Arrays.asList(classesWithMainMethods.toArray());
