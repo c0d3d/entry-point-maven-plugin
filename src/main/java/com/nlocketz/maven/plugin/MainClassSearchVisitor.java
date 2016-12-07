@@ -21,6 +21,7 @@ public class MainClassSearchVisitor implements FileVisitor<Path> {
 	private Path base;
 	private String includeFilterString;
 	private PathMatcher includeFilter;
+	private boolean insideJar;
 
 	MainClassSearchVisitor(Set<String> mainsFound, ClassLoader projectClasses, FileSystem fs, String includeFilter) {
 		this.mainsFound = mainsFound;
@@ -28,19 +29,22 @@ public class MainClassSearchVisitor implements FileVisitor<Path> {
 		this.includeFilterString = includeFilter;
 		this.includeFilter = fs.getPathMatcher(includeFilter.replace(".", fs.getSeparator()));
 		this.pathSep = fs.getSeparator();
+		this.insideJar = false;
+
 	}
 
 	MainClassSearchVisitor(Set<String> mainsFound, ClassLoader projectClasses, String includeFilter) {
 		this(mainsFound, projectClasses, FileSystems.getDefault(), includeFilter);
 	}
 
-	private MainClassSearchVisitor(MainClassSearchVisitor other, Path newBase, FileSystem fs, String includeFilter) {
+	private MainClassSearchVisitor(MainClassSearchVisitor other, Path newBase, FileSystem fs, String includeFilter, boolean insideJar) {
 		mainsFound = other.mainsFound;
 		projectClasses = other.projectClasses;
 		base = newBase;
 		this.includeFilterString = includeFilter;
 		this.includeFilter = fs.getPathMatcher(includeFilter.replace(".", fs.getSeparator()));
 		this.pathSep = fs.getSeparator();
+		this.insideJar = insideJar;
 	}
 
 	public FileVisitResult postVisitDirectory(Path p, IOException e) throws IOException {
@@ -73,17 +77,20 @@ public class MainClassSearchVisitor implements FileVisitor<Path> {
 				mainsFound.add(className);
 			} else if (curFileName.endsWith(".jar")) {
 				getLog().debug("Found jar: " + p.toString());
-				// So the default file system provider recognizes "jar" scheme
-				// and will allow us to work with a jar file as
-				// though it were a normal file system.
+				if (insideJar) {
+					getLog().warn("Ignoring nested jar: " + p.toString());
+				} else {
+					// So the default file system provider recognizes "jar" scheme
+					// and will allow us to work with a jar file as
+					// though it were a normal file system.
 
-				FileSystem jarFS = FileSystems.newFileSystem(URI.create("jar:" + p.toUri().toString()),
+					FileSystem jarFS = FileSystems.newFileSystem(URI.create("jar:" + p.toUri().toString()),
 						Collections.<String, String>emptyMap());
-				for (Path jarsRoot : jarFS.getRootDirectories()) {
-					getLog().debug("Searching jar root: " + jarsRoot.toString());
-					Files.walkFileTree(jarsRoot, new MainClassSearchVisitor(this, jarsRoot, jarFS, includeFilterString));
+					for (Path jarsRoot : jarFS.getRootDirectories()) {
+						getLog().debug("Searching jar root: " + jarsRoot.toString());
+						Files.walkFileTree(jarsRoot, new MainClassSearchVisitor(this, jarsRoot, jarFS, includeFilterString, true));
+					}
 				}
-
 			}
 		} catch (ClassNotFoundException | SecurityException e) {
 			throw new IOException("Couldn't reflect on class " + p.toString(), e);
